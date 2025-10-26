@@ -9,7 +9,31 @@
 ## Dependency Tree Overview
 
 ```
-Resume-SSO (Foundation)
+Resume-SSO (Foundation - Authentication Service)
+├── DEPENDS ON: None (foundation service)
+├── BLOCKS: All authenticated services
+│   ├── Resume-API (needs authentication for all operations)
+│   ├── Resume-Admin-API (needs authentication + MFA)
+│   ├── Resume-Account-API (needs authentication for account operations)
+│   ├── Resume-Processor (needs authentication for monitoring endpoints)
+│   ├── Resume-UI (needs authenticated API access)
+│   ├── Resume-Account-UI (needs authenticated account access)
+│   ├── Resume-Admin (needs authenticated admin access with MFA)
+│   ├── Resume-Mobile-UI (needs mobile authentication)
+│   └── Resume-Mobile-Admin (needs mobile admin authentication with MFA)
+
+Services that DEPEND on Resume-SSO:
+├── Resume-API (MVP-1: Core CRUD operations)
+├── Resume-Admin-API (MVP-2.2: After MFA implemented)
+├── Resume-Account-API (MVP-1: Core account operations)
+├── Resume-Processor (MVP-1.5: Job monitoring endpoints)
+├── Resume-UI (MVP-1: User authentication)
+├── Resume-Account-UI (MVP-1: Account management)
+├── Resume-Admin (MVP-2.2: Admin authentication with MFA)
+├── Resume-Mobile-UI (MVP-1: Mobile authentication)
+└── Resume-Mobile-Admin (MVP-2.2: Mobile admin with MFA)
+
+MVP Breakdown:
 ├── MVP-1: Email/Password Auth ⟶ Blocks: All other services
 │   ├── Database Schema
 │   ├── Registration & Email Verification
@@ -25,9 +49,9 @@ Resume-SSO (Foundation)
 │   ├── Google OAuth
 │   └── LinkedIn OAuth
 │
-└── MVP-4: Security & MFA ⟶ Blocks: Premium features
+└── MVP-4: Security & MFA ⟶ Blocks: Premium features & Admin services
     ├── Rate Limiting
-    ├── TOTP MFA
+    ├── TOTP MFA (Required for Resume-Admin, Resume-Mobile-Admin)
     └── Account Security
 ```
 
@@ -37,7 +61,7 @@ Resume-SSO (Foundation)
 
 **Status**: MUST BUILD FIRST - Blocks everything else
 **Dependencies**: None
-**Blocks**: Resume-API, Resume-UI, Resume-Admin, Resume-Admin-API
+**Blocks**: Resume-API, Resume-Admin-API, Resume-Account-API, Resume-Processor, Resume-UI, Resume-Admin, Resume-Account-UI, Resume-Mobile-UI, Resume-Mobile-Admin
 
 ### Epic 1.1: Database Schema & Setup
 **What**: D1 database structure for user management
@@ -141,7 +165,7 @@ Resume-SSO (Foundation)
 
 **Status**: Required for API authentication
 **Dependencies**: MVP-1
-**Blocks**: Resume-API authentication middleware
+**Blocks**: Resume-API, Resume-Admin-API, Resume-Account-API, Resume-Processor (all require JWT validation)
 
 ### Epic 2.1: JWT Validation Middleware
 **What**: Validate JWT tokens on protected routes
@@ -201,7 +225,7 @@ Resume-SSO (Foundation)
 
 **Status**: Enhances user onboarding
 **Dependencies**: MVP-2
-**Blocks**: Social login features in Resume-UI
+**Blocks**: Resume-UI, Resume-Mobile-UI, Resume-Account-UI (social login features)
 
 ### Epic 3.1: Google OAuth
 **What**: Allow users to sign in with Google
@@ -248,7 +272,7 @@ Resume-SSO (Foundation)
 
 **Status**: Required for production and premium users
 **Dependencies**: MVP-3
-**Blocks**: Premium tier features
+**Blocks**: Resume-Admin, Resume-Mobile-Admin (MFA required), Resume-UI Premium features, Resume-Account-UI Premium features
 
 ### Epic 4.1: Rate Limiting
 **What**: Prevent abuse and brute force attacks
@@ -330,13 +354,14 @@ Resume-SSO (Foundation)
 
 ## What Blocks What
 
-| This Epic | Blocks These Epics |
-|-----------|-------------------|
-| MVP-1.1 (Database) | Everything |
-| MVP-1.4 (Login) | Resume-API authentication |
-| MVP-2.1 (JWT Validation) | All API endpoints requiring auth |
-| MVP-3.1 (Google OAuth) | Social login in Resume-UI |
-| MVP-4.3 (MFA) | Premium tier security features |
+| This Epic | Blocks These Services/Features |
+|-----------|--------------------------------|
+| MVP-1.1 (Database) | ALL services - foundation for user management |
+| MVP-1.4 (Login) | Resume-API, Resume-Admin-API, Resume-Account-API, Resume-Processor, all UI services |
+| MVP-2.1 (JWT Validation) | All API endpoints in Resume-API, Resume-Admin-API, Resume-Account-API, Resume-Processor |
+| MVP-3.1 (Google OAuth) | Social login in Resume-UI, Resume-Mobile-UI, Resume-Account-UI |
+| MVP-3.2 (LinkedIn OAuth) | LinkedIn import in Resume-UI, Resume-Mobile-UI |
+| MVP-4.3 (MFA) | Resume-Admin, Resume-Mobile-Admin (required), Premium features in Resume-UI, Resume-Account-UI |
 
 ---
 
